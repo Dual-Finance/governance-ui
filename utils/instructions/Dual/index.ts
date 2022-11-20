@@ -13,13 +13,14 @@ import {
   findAssociatedTokenAddress,
 } from '@utils/associated'
 import { tryGetTokenAccount } from '@utils/tokens'
-import useWallet from '@hooks/useWallet'
+import { WalletAdapter } from '@solana/wallet-adapter-base'
 
 interface Args {
   connection: ConnectionContext
   form: DualFinanceStakingOptionForm
   setFormErrors: any
   schema: any
+  wallet: WalletAdapter | undefined
 }
 
 function getStakingOptionsApi(connection: ConnectionContext) {
@@ -28,20 +29,19 @@ function getStakingOptionsApi(connection: ConnectionContext) {
 
 export default async function getConfigInstruction({
   connection,
+  wallet,
   form,
   schema,
   setFormErrors,
 }: Args): Promise<UiInstruction> {
   const isValid = await validateInstruction({ schema, form, setFormErrors })
-  const { wallet } = useWallet()
 
   const serializedInstruction = ''
-  const additionalSerializedInstructions: string[] = []
+  let additionalSerializedInstructions: string[] = []
 
   if (
     isValid &&
     form.soName &&
-    form.soAuthority &&
     form.baseTreasury &&
     form.quoteTreasury &&
     form.userPk &&
@@ -50,20 +50,21 @@ export default async function getConfigInstruction({
     const so = getStakingOptionsApi(connection)
     const baseTreasuryAccount = await tryGetTokenAccount(
       connection.current,
-      new PublicKey(form.baseTreasury)
+      form.baseTreasury.pubkey
     )
     const baseMint = baseTreasuryAccount?.account.mint
     const quoteTreasuryAccount = await tryGetTokenAccount(
       connection.current,
-      new PublicKey(form.quoteTreasury)
+      form.quoteTreasury.pubkey
     )
     const quoteMint = quoteTreasuryAccount?.account.mint
 
     if (!baseMint || !quoteMint) {
+      console.log('No mint')
       return {
         serializedInstruction,
         isValid: false,
-        governance: form.soAuthority?.governance,
+        governance: form.baseTreasury?.governance,
         additionalSerializedInstructions: [],
         chunkSplitByDefault: true,
         chunkBy: 1,
@@ -76,18 +77,25 @@ export default async function getConfigInstruction({
       form.numTokens,
       form.lotSize,
       form.soName,
-      new PublicKey(form.soAuthority),
+      form.baseTreasury.governance.pubkey,
       baseMint,
-      new PublicKey(form.baseTreasury),
+      form.baseTreasury.pubkey,
       quoteMint,
-      new PublicKey(form.quoteTreasury)
+      form.quoteTreasury.pubkey
+    )
+
+    additionalSerializedInstructions = additionalSerializedInstructions.concat(
+      serializeInstructionToBase64(configInstruction)
     )
 
     const initStrikeInstruction = await so.createInitStrikeInstruction(
       form.strike,
       form.soName,
-      new PublicKey(form.soAuthority),
+      form.baseTreasury.governance.pubkey,
       baseMint
+    )
+    additionalSerializedInstructions = additionalSerializedInstructions.concat(
+      serializeInstructionToBase64(initStrikeInstruction)
     )
 
     const soMint = await so.soMint(form.strike, form.soName, baseMint)
@@ -102,7 +110,7 @@ export default async function getConfigInstruction({
         new PublicKey(form.userPk),
         soMint
       )
-      additionalSerializedInstructions.concat(
+      additionalSerializedInstructions = additionalSerializedInstructions.concat(
         serializeInstructionToBase64(ataIx)
       )
     }
@@ -111,25 +119,19 @@ export default async function getConfigInstruction({
       form.numTokens,
       form.strike,
       form.soName,
-      new PublicKey(form.soAuthority),
+      form.baseTreasury.governance.pubkey,
       baseMint,
       userSoAccount
     )
 
-    additionalSerializedInstructions.concat(
-      serializeInstructionToBase64(configInstruction)
-    )
-    additionalSerializedInstructions.concat(
-      serializeInstructionToBase64(initStrikeInstruction)
-    )
-    additionalSerializedInstructions.concat(
+    additionalSerializedInstructions = additionalSerializedInstructions.concat(
       serializeInstructionToBase64(issueInstruction)
     )
 
     const obj: UiInstruction = {
       serializedInstruction,
       isValid: true,
-      governance: form.soAuthority?.governance,
+      governance: form.baseTreasury?.governance,
       additionalSerializedInstructions,
       chunkSplitByDefault: true,
       chunkBy: 1,
@@ -140,7 +142,7 @@ export default async function getConfigInstruction({
   const obj: UiInstruction = {
     serializedInstruction,
     isValid: false,
-    governance: form.soAuthority?.governance,
+    governance: form.baseTreasury?.governance,
     additionalSerializedInstructions,
     chunkSplitByDefault: true,
     chunkBy: 1,

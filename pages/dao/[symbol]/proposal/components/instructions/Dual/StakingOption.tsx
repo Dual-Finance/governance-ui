@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useContext, useEffect, useState } from 'react'
-import * as yup from 'yup'
-import { isFormValid } from '@utils/formValidation'
 import {
   UiInstruction,
   DualFinanceStakingOptionForm,
@@ -12,6 +10,9 @@ import { Governance } from '@solana/spl-governance'
 import useGovernanceAssets from '@hooks/useGovernanceAssets'
 import { ProgramAccount } from '@solana/spl-governance'
 import Input from '@components/inputs/Input'
+import getConfigInstruction from '@utils/instructions/Dual'
+import useWalletStore from 'stores/useWalletStore'
+import { getDualFinanceStakingOptionSchema } from '@utils/validations'
 
 const StakingOption = ({
   index,
@@ -21,7 +22,6 @@ const StakingOption = ({
   governance: ProgramAccount<Governance> | null
 }) => {
   const [form, setForm] = useState<DualFinanceStakingOptionForm>({
-    soAuthority: undefined,
     soName: undefined,
     optionExpirationUnixSeconds: 0,
     subscriptionPeriodEndUnixSeconds: 0,
@@ -32,54 +32,44 @@ const StakingOption = ({
     userPk: undefined,
     strike: 0,
   })
+  const connection = useWalletStore((s) => s.connection)
+  const wallet = useWalletStore((s) => s.current)
   const shouldBeGoverned = !!(index !== 0 && governance)
-  const { assetAccounts } = useGovernanceAssets()
+  const { governedTokenAccountsWithoutNfts } = useGovernanceAssets()
+  const [governedAccount, setGovernedAccount] = useState<
+    ProgramAccount<Governance> | undefined
+  >(undefined)
+
   const [formErrors, setFormErrors] = useState({})
   const { handleSetInstructions } = useContext(NewProposalContext)
   const handleSetForm = ({ propertyName, value }) => {
     setFormErrors({})
     setForm({ ...form, [propertyName]: value })
   }
-  const validateInstruction = async (): Promise<boolean> => {
-    const { isValid, validationErrors } = await isFormValid(schema, form)
-    setFormErrors(validationErrors)
-    return isValid
-  }
   async function getInstruction(): Promise<UiInstruction> {
-    // TODO: Fill this in
-    const isValid = await validateInstruction()
-    const serializedInstruction = ''
-    const obj: UiInstruction = {
-      serializedInstruction: serializedInstruction,
-      isValid,
-      governance: undefined,
-    }
+    const obj: UiInstruction = await getConfigInstruction({
+      connection,
+      form,
+      schema,
+      setFormErrors,
+      wallet,
+    })
+    console.log(obj)
     return obj
   }
   useEffect(() => {
-    handleSetInstructions({ governedAccount: undefined, getInstruction }, index)
+    handleSetInstructions(
+      { governedAccount: governedAccount, getInstruction },
+      index
+    )
   }, [form])
-  const schema = yup.object().shape({
-    bufferAddress: yup.number(),
-    governedAccount: yup
-      .object()
-      .nullable()
-      .required('Program governed account is required'),
-  })
+  useEffect(() => {
+    setGovernedAccount(form.baseTreasury?.governance)
+  }, [form.baseTreasury])
+  const schema = getDualFinanceStakingOptionSchema()
 
   return (
     <>
-      <GovernedAccountSelect
-        label="Governance"
-        governedAccounts={assetAccounts}
-        onChange={(value) => {
-          handleSetForm({ value, propertyName: 'soAuthority' })
-        }}
-        value={form.soAuthority}
-        error={formErrors['soAuthority']}
-        shouldBeGoverned={shouldBeGoverned}
-        governance={governance}
-      />
       <Input
         label="SO Name"
         value={form.soName}
@@ -152,30 +142,28 @@ const StakingOption = ({
         }
         error={formErrors['lotSize']}
       />
-      <Input
+      <GovernedAccountSelect
         label="Base Treasury"
+        governedAccounts={governedTokenAccountsWithoutNfts}
+        onChange={(value) => {
+          handleSetForm({ value, propertyName: 'baseTreasury' })
+        }}
         value={form.baseTreasury}
-        type="text"
-        onChange={(evt) =>
-          handleSetForm({
-            value: evt.target.value,
-            propertyName: 'baseTreasury',
-          })
-        }
         error={formErrors['baseTreasury']}
-      />
-      <Input
+        shouldBeGoverned={shouldBeGoverned}
+        governance={governance}
+      ></GovernedAccountSelect>
+      <GovernedAccountSelect
         label="Quote Treasury"
+        governedAccounts={governedTokenAccountsWithoutNfts}
+        onChange={(value) => {
+          handleSetForm({ value, propertyName: 'quoteTreasury' })
+        }}
         value={form.quoteTreasury}
-        type="text"
-        onChange={(evt) =>
-          handleSetForm({
-            value: evt.target.value,
-            propertyName: 'quoteTreasury',
-          })
-        }
         error={formErrors['quoteTreasury']}
-      />
+        shouldBeGoverned={shouldBeGoverned}
+        governance={governance}
+      ></GovernedAccountSelect>
       <Input
         label="User Pk"
         value={form.userPk}
