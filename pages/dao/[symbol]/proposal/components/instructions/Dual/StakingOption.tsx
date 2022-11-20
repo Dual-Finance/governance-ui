@@ -29,6 +29,8 @@ const StakingOption = ({
     lotSize: 0,
     baseTreasury: undefined,
     quoteTreasury: undefined,
+    userSoAccount: undefined,
+    strike: 0,
   })
   const shouldBeGoverned = !!(index !== 0 && governance)
   const { assetAccounts } = useGovernanceAssets()
@@ -127,6 +129,18 @@ const StakingOption = ({
         error={formErrors['numTokens']}
       />
       <Input
+        label="Strike"
+        value={form.strike}
+        type="number"
+        onChange={(evt) =>
+          handleSetForm({
+            value: evt.target.value,
+            propertyName: 'strike',
+          })
+        }
+        error={formErrors['strike']}
+      />
+      <Input
         label="Lot Size"
         value={form.lotSize}
         type="number"
@@ -161,6 +175,18 @@ const StakingOption = ({
           })
         }
         error={formErrors['quoteTreasury']}
+      />
+      <Input
+        label="User SO Account"
+        value={form.userSoAccount}
+        type="text"
+        onChange={(evt) =>
+          handleSetForm({
+            value: evt.target.value,
+            propertyName: 'userSoAccount',
+          })
+        }
+        error={formErrors['userSoAccount']}
       />
     </>
   )

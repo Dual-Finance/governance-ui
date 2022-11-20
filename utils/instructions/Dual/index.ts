@@ -2,20 +2,18 @@ import { serializeInstructionToBase64 } from '@solana/spl-governance'
 import { PublicKey } from '@solana/web3.js'
 
 import { StakingOptions } from '@dual-finance/staking-options'
-import { parseMintNaturalAmountFromDecimal } from '@tools/sdk/units'
 import { ConnectionContext } from '@utils/connection'
 import { validateInstruction } from '@utils/instructionTools'
 import {
   DualFinanceStakingOptionForm,
   UiInstruction,
 } from '@utils/uiTypes/proposalCreationTypes'
-import { PublicKeyLayout } from '@blockworks-foundation/mango-client'
 
 interface Args {
   connection: ConnectionContext
   form: DualFinanceStakingOptionForm
-  setFormErrors: any // TODO
-  schema: any // TODO
+  setFormErrors: any
+  schema: any
 }
 
 function getStakingOptionsApi(connection: ConnectionContext) {
@@ -37,15 +35,16 @@ export default async function getConfigInstruction({
     form.soName &&
     form.soAuthority &&
     form.baseTreasury &&
-    form.quoteTreasury
+    form.quoteTreasury &&
+    form.userSoAccount
   ) {
     const so = getStakingOptionsApi(connection)
     // TODO: Lookup the mints from the token accounts
-    // TODO: Add instructions to create ata
+    // TODO: Add instructions to create token accounts if needed
     const baseMint = new PublicKey('')
     const quoteMint = new PublicKey('')
 
-    const instruction = await so.createConfigInstruction(
+    const configInstruction = await so.createConfigInstruction(
       form.optionExpirationUnixSeconds,
       form.subscriptionPeriodEndUnixSeconds,
       form.numTokens,
@@ -58,8 +57,26 @@ export default async function getConfigInstruction({
       new PublicKey(form.quoteTreasury)
     )
 
+    const initStrikeInstruction = await so.createInitStrikeInstruction(
+      form.strike,
+      form.soName,
+      new PublicKey(form.soAuthority),
+      baseMint
+    )
+
+    const issueInstruction = await so.createIssueInstruction(
+      form.numTokens,
+      form.strike,
+      form.soName,
+      new PublicKey(form.soAuthority),
+      baseMint,
+      new PublicKey(form.userSoAccount)
+    )
+
     const additionalSerializedInstructions = [
-      serializeInstructionToBase64(instruction),
+      serializeInstructionToBase64(configInstruction),
+      serializeInstructionToBase64(initStrikeInstruction),
+      serializeInstructionToBase64(issueInstruction),
     ]
 
     const obj: UiInstruction = {
