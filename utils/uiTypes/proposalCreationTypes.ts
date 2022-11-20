@@ -676,5 +676,5 @@ export interface DualFinanceStakingOptionForm {
   lotSize: number
   baseTreasury: string | undefined
   quoteTreasury: string | undefined
-  userSoAccount: string | undefined
+  userPk: string | undefined
 }

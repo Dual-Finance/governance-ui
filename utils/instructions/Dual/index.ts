@@ -8,6 +8,12 @@ import {
   DualFinanceStakingOptionForm,
   UiInstruction,
 } from '@utils/uiTypes/proposalCreationTypes'
+import {
+  createAssociatedTokenAccount,
+  findAssociatedTokenAddress,
+} from '@utils/associated'
+import { tryGetTokenAccount } from '@utils/tokens'
+import useWallet from '@hooks/useWallet'
 
 interface Args {
   connection: ConnectionContext
@@ -27,8 +33,10 @@ export default async function getConfigInstruction({
   setFormErrors,
 }: Args): Promise<UiInstruction> {
   const isValid = await validateInstruction({ schema, form, setFormErrors })
+  const { wallet } = useWallet()
 
   const serializedInstruction = ''
+  const additionalSerializedInstructions: string[] = []
 
   if (
     isValid &&
@@ -36,13 +44,31 @@ export default async function getConfigInstruction({
     form.soAuthority &&
     form.baseTreasury &&
     form.quoteTreasury &&
-    form.userSoAccount
+    form.userPk &&
+    wallet?.publicKey
   ) {
     const so = getStakingOptionsApi(connection)
-    // TODO: Lookup the mints from the token accounts
-    // TODO: Add instructions to create token accounts if needed
-    const baseMint = new PublicKey('')
-    const quoteMint = new PublicKey('')
+    const baseTreasuryAccount = await tryGetTokenAccount(
+      connection.current,
+      new PublicKey(form.baseTreasury)
+    )
+    const baseMint = baseTreasuryAccount?.account.mint
+    const quoteTreasuryAccount = await tryGetTokenAccount(
+      connection.current,
+      new PublicKey(form.quoteTreasury)
+    )
+    const quoteMint = quoteTreasuryAccount?.account.mint
+
+    if (!baseMint || !quoteMint) {
+      return {
+        serializedInstruction,
+        isValid: false,
+        governance: form.soAuthority?.governance,
+        additionalSerializedInstructions: [],
+        chunkSplitByDefault: true,
+        chunkBy: 1,
+      }
+    }
 
     const configInstruction = await so.createConfigInstruction(
       form.optionExpirationUnixSeconds,
@@ -64,20 +90,41 @@ export default async function getConfigInstruction({
       baseMint
     )
 
+    const soMint = await so.soMint(form.strike, form.soName, baseMint)
+    const userSoAccount = await findAssociatedTokenAddress(
+      new PublicKey(form.userPk),
+      soMint
+    )
+
+    if (!(await connection.current.getAccountInfo(userSoAccount))) {
+      const [ataIx] = await createAssociatedTokenAccount(
+        wallet.publicKey,
+        new PublicKey(form.userPk),
+        soMint
+      )
+      additionalSerializedInstructions.concat(
+        serializeInstructionToBase64(ataIx)
+      )
+    }
+
     const issueInstruction = await so.createIssueInstruction(
       form.numTokens,
       form.strike,
       form.soName,
       new PublicKey(form.soAuthority),
       baseMint,
-      new PublicKey(form.userSoAccount)
+      userSoAccount
     )
 
-    const additionalSerializedInstructions = [
-      serializeInstructionToBase64(configInstruction),
-      serializeInstructionToBase64(initStrikeInstruction),
-      serializeInstructionToBase64(issueInstruction),
-    ]
+    additionalSerializedInstructions.concat(
+      serializeInstructionToBase64(configInstruction)
+    )
+    additionalSerializedInstructions.concat(
+      serializeInstructionToBase64(initStrikeInstruction)
+    )
+    additionalSerializedInstructions.concat(
+      serializeInstructionToBase64(issueInstruction)
+    )
 
     const obj: UiInstruction = {
       serializedInstruction,
@@ -94,7 +141,7 @@ export default async function getConfigInstruction({
     serializedInstruction,
     isValid: false,
     governance: form.soAuthority?.governance,
-    additionalSerializedInstructions: [],
+    additionalSerializedInstructions,
     chunkSplitByDefault: true,
     chunkBy: 1,
   }

@@ -29,7 +29,7 @@ const StakingOption = ({
     lotSize: 0,
     baseTreasury: undefined,
     quoteTreasury: undefined,
-    userSoAccount: undefined,
+    userPk: undefined,
     strike: 0,
   })
   const shouldBeGoverned = !!(index !== 0 && governance)
@@ -177,16 +177,16 @@ const StakingOption = ({
         error={formErrors['quoteTreasury']}
       />
       <Input
-        label="User SO Account"
-        value={form.userSoAccount}
+        label="User Pk"
+        value={form.userPk}
         type="text"
         onChange={(evt) =>
           handleSetForm({
             value: evt.target.value,
-            propertyName: 'userSoAccount',
+            propertyName: 'userPk',
           })
         }
-        error={formErrors['userSoAccount']}
+        error={formErrors['userPk']}
       />
     </>
   )
