@@ -667,7 +667,7 @@ export interface ValidatorWithdrawStakeForm {
 }
 
 export interface DualFinanceStakingOptionForm {
-  soAuthority: string | undefined
+  soAuthority: AssetAccount | undefined
   soName: string | undefined
   optionExpirationUnixSeconds: number
   subscriptionPeriodEndUnixSeconds: number

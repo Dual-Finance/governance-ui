@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useContext, useEffect, useState } from 'react'
-import useRealm from '@hooks/useRealm'
-import { PublicKey } from '@solana/web3.js'
 import * as yup from 'yup'
 import { isFormValid } from '@utils/formValidation'
 import {
@@ -9,12 +7,15 @@ import {
   DualFinanceStakingOptionForm,
 } from '@utils/uiTypes/proposalCreationTypes'
 import { NewProposalContext } from '../../../new'
+import GovernedAccountSelect from '../../GovernedAccountSelect'
 import { Governance } from '@solana/spl-governance'
+import useGovernanceAssets from '@hooks/useGovernanceAssets'
 import { ProgramAccount } from '@solana/spl-governance'
 import Input from '@components/inputs/Input'
 
 const StakingOption = ({
   index,
+  governance,
 }: {
   index: number
   governance: ProgramAccount<Governance> | null
@@ -29,6 +30,8 @@ const StakingOption = ({
     baseTreasury: undefined,
     quoteTreasury: undefined,
   })
+  const shouldBeGoverned = !!(index !== 0 && governance)
+  const { assetAccounts } = useGovernanceAssets()
   const [formErrors, setFormErrors] = useState({})
   const { handleSetInstructions } = useContext(NewProposalContext)
   const handleSetForm = ({ propertyName, value }) => {
@@ -41,6 +44,7 @@ const StakingOption = ({
     return isValid
   }
   async function getInstruction(): Promise<UiInstruction> {
+    // TODO: Fill this in
     const isValid = await validateInstruction()
     const serializedInstruction = ''
     const obj: UiInstruction = {
@@ -51,7 +55,6 @@ const StakingOption = ({
     return obj
   }
   useEffect(() => {
-    // TODO: Fill this in
     handleSetInstructions({ governedAccount: undefined, getInstruction }, index)
   }, [form])
   const schema = yup.object().shape({
@@ -64,17 +67,16 @@ const StakingOption = ({
 
   return (
     <>
-      <Input
-        label="SO Authority"
+      <GovernedAccountSelect
+        label="Governance"
+        governedAccounts={assetAccounts}
+        onChange={(value) => {
+          handleSetForm({ value, propertyName: 'soAuthority' })
+        }}
         value={form.soAuthority}
-        type="text"
-        onChange={(evt) =>
-          handleSetForm({
-            value: evt.target.value,
-            propertyName: 'soAuthority',
-          })
-        }
         error={formErrors['soAuthority']}
+        shouldBeGoverned={shouldBeGoverned}
+        governance={governance}
       />
       <Input
         label="SO Name"
