@@ -29,6 +29,7 @@ const StakingOption = ({
     lotSize: 0,
     baseTreasury: undefined,
     quoteTreasury: undefined,
+    payer: undefined,
     userPk: undefined,
     strike: 0,
   })
@@ -54,7 +55,6 @@ const StakingOption = ({
       setFormErrors,
       wallet,
     })
-    console.log(obj)
     return obj
   }
   useEffect(() => {
@@ -161,6 +161,17 @@ const StakingOption = ({
         }}
         value={form.quoteTreasury}
         error={formErrors['quoteTreasury']}
+        shouldBeGoverned={shouldBeGoverned}
+        governance={governance}
+      ></GovernedAccountSelect>
+      <GovernedAccountSelect
+        label="Payer"
+        governedAccounts={governedTokenAccountsWithoutNfts}
+        onChange={(value) => {
+          handleSetForm({ value, propertyName: 'payer' })
+        }}
+        value={form.payer}
+        error={formErrors['payer']}
         shouldBeGoverned={shouldBeGoverned}
         governance={governance}
       ></GovernedAccountSelect>

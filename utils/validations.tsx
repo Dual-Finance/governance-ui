@@ -566,6 +566,7 @@ export const getDualFinanceStakingOptionSchema = () => {
     lotSize: yup.number().typeError('lotSize is required'),
     baseTreasury: yup.object().typeError('baseTreasury is required'),
     quoteTreasury: yup.object().typeError('quoteTreasury is required'),
+    payer: yup.object().typeError('payer is required'),
   })
 }
 

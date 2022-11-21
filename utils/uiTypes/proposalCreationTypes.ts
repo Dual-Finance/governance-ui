@@ -675,5 +675,6 @@ export interface DualFinanceStakingOptionForm {
   lotSize: number
   baseTreasury: AssetAccount | undefined
   quoteTreasury: AssetAccount | undefined
+  payer: AssetAccount | undefined
   userPk: string | undefined
 }

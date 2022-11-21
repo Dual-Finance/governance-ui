@@ -44,6 +44,7 @@ export default async function getConfigInstruction({
     form.soName &&
     form.baseTreasury &&
     form.quoteTreasury &&
+    form.payer &&
     form.userPk &&
     wallet?.publicKey
   ) {
@@ -60,7 +61,6 @@ export default async function getConfigInstruction({
     const quoteMint = quoteTreasuryAccount?.account.mint
 
     if (!baseMint || !quoteMint) {
-      console.log('No mint')
       return {
         serializedInstruction,
         isValid: false,
@@ -77,7 +77,7 @@ export default async function getConfigInstruction({
       form.numTokens,
       form.lotSize,
       form.soName,
-      form.baseTreasury.governance.pubkey,
+      form.payer.pubkey,
       baseMint,
       form.baseTreasury.pubkey,
       quoteMint,
@@ -91,7 +91,7 @@ export default async function getConfigInstruction({
     const initStrikeInstruction = await so.createInitStrikeInstruction(
       form.strike,
       form.soName,
-      form.baseTreasury.governance.pubkey,
+      form.payer.pubkey,
       baseMint
     )
     additionalSerializedInstructions = additionalSerializedInstructions.concat(
@@ -119,7 +119,7 @@ export default async function getConfigInstruction({
       form.numTokens,
       form.strike,
       form.soName,
-      form.baseTreasury.governance.pubkey,
+      form.payer.pubkey,
       baseMint,
       userSoAccount
     )
