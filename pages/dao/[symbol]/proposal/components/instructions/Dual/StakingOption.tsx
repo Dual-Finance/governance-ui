@@ -84,7 +84,7 @@ const StakingOption = ({
           error={formErrors['soName']}
         />
       </Tooltip>
-      <Tooltip content="Treasury owned account providing the assets for the option">
+      <Tooltip content="Treasury owned account providing the assets for the option. When the recipient exercises, these are the tokens they receive.">
         <GovernedAccountSelect
           label="Base Treasury"
           governedAccounts={governedTokenAccountsWithoutNfts}
@@ -97,7 +97,7 @@ const StakingOption = ({
           governance={governance}
         ></GovernedAccountSelect>
       </Tooltip>
-      <Tooltip content="Treasury owned account receiving payment for the option exercise">
+      <Tooltip content="Treasury owned account receiving payment for the option exercise. This is where payments from exercise accumulate.">
         <GovernedAccountSelect
           label="Quote Treasury"
           governedAccounts={governedTokenAccountsWithoutNfts}
