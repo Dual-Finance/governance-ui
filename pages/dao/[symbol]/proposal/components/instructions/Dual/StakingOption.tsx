@@ -71,7 +71,8 @@ const StakingOption = ({
   return (
     <>
       <Input
-        label="SO Name"
+        // TT Enter custom Name to identify the Staking Option
+        label="Name"
         value={form.soName}
         type="text"
         onChange={(evt) =>
@@ -82,32 +83,33 @@ const StakingOption = ({
         }
         error={formErrors['soName']}
       />
+      <GovernedAccountSelect
+        // TT For Calls select Underlying token (Governance Token). For Puts select the Premium token (Stablecoin).
+        label="Base Token"
+        governedAccounts={governedTokenAccountsWithoutNfts}
+        onChange={(value) => {
+          handleSetForm({ value, propertyName: 'baseTreasury' })
+        }}
+        value={form.baseTreasury}
+        error={formErrors['baseTreasury']}
+        shouldBeGoverned={shouldBeGoverned}
+        governance={governance}
+      ></GovernedAccountSelect>
+      <GovernedAccountSelect
+        // TT For Calls select the Premium token (Stablecoin). For Puts select Underlying token (Governance Token).
+        label="Quote Token"
+        governedAccounts={governedTokenAccountsWithoutNfts}
+        onChange={(value) => {
+          handleSetForm({ value, propertyName: 'quoteTreasury' })
+        }}
+        value={form.quoteTreasury}
+        error={formErrors['quoteTreasury']}
+        shouldBeGoverned={shouldBeGoverned}
+        governance={governance}
+      ></GovernedAccountSelect>
       <Input
-        label="Option Expiration"
-        value={form.optionExpirationUnixSeconds}
-        type="number"
-        onChange={(evt) =>
-          handleSetForm({
-            value: evt.target.value,
-            propertyName: 'optionExpirationUnixSeconds',
-          })
-        }
-        error={formErrors['optionExpirationUnixSeconds']}
-      />
-      <Input
-        label="Subscription Period End"
-        value={form.subscriptionPeriodEndUnixSeconds}
-        type="number"
-        onChange={(evt) =>
-          handleSetForm({
-            value: evt.target.value,
-            propertyName: 'subscriptionPeriodEndUnixSeconds',
-          })
-        }
-        error={formErrors['subscriptionPeriodEndUnixSeconds']}
-      />
-      <Input
-        label="Num Tokens"
+        // TT Enter how many Staking Options you want to create in Base Tokens
+        label="Quantity"
         value={form.numTokens}
         type="number"
         onChange={(evt) =>
@@ -119,6 +121,20 @@ const StakingOption = ({
         error={formErrors['numTokens']}
       />
       <Input
+        // TT Enter the date in unix time in seconds that the Staking Option expires
+        label="Expiration"
+        value={form.optionExpirationUnixSeconds}
+        type="number"
+        onChange={(evt) =>
+          handleSetForm({
+            value: evt.target.value,
+            propertyName: 'optionExpirationUnixSeconds',
+          })
+        }
+        error={formErrors['optionExpirationUnixSeconds']}
+      />
+      <Input
+        // TT Enter the price in Base/Quote integer terms. Use Lot Size to normalize the decimals
         label="Strike"
         value={form.strike}
         type="number"
@@ -131,6 +147,20 @@ const StakingOption = ({
         error={formErrors['strike']}
       />
       <Input
+        // Remove this or explain in TT: Enter a date that excess tokens can be withdrawn. If all the Staking Options are issued immediately set to the same unix time as expiration
+        label="Subscription Period End"
+        value={form.subscriptionPeriodEndUnixSeconds}
+        type="number"
+        onChange={(evt) =>
+          handleSetForm({
+            value: evt.target.value,
+            propertyName: 'subscriptionPeriodEndUnixSeconds',
+          })
+        }
+        error={formErrors['subscriptionPeriodEndUnixSeconds']}
+      />
+      <Input
+        // Enter integer to normalize the decimals between Base & Quote. For example BTC/USD Puts should be >4
         label="Lot Size"
         value={form.lotSize}
         type="number"
@@ -143,29 +173,8 @@ const StakingOption = ({
         error={formErrors['lotSize']}
       />
       <GovernedAccountSelect
-        label="Base Treasury"
-        governedAccounts={governedTokenAccountsWithoutNfts}
-        onChange={(value) => {
-          handleSetForm({ value, propertyName: 'baseTreasury' })
-        }}
-        value={form.baseTreasury}
-        error={formErrors['baseTreasury']}
-        shouldBeGoverned={shouldBeGoverned}
-        governance={governance}
-      ></GovernedAccountSelect>
-      <GovernedAccountSelect
-        label="Quote Treasury"
-        governedAccounts={governedTokenAccountsWithoutNfts}
-        onChange={(value) => {
-          handleSetForm({ value, propertyName: 'quoteTreasury' })
-        }}
-        value={form.quoteTreasury}
-        error={formErrors['quoteTreasury']}
-        shouldBeGoverned={shouldBeGoverned}
-        governance={governance}
-      ></GovernedAccountSelect>
-      <GovernedAccountSelect
-        label="Payer"
+        // TT Enter the account that will pay transaction fees
+        label="Payer Account"
         governedAccounts={governedTokenAccountsWithoutNfts}
         onChange={(value) => {
           handleSetForm({ value, propertyName: 'payer' })
@@ -176,7 +185,8 @@ const StakingOption = ({
         governance={governance}
       ></GovernedAccountSelect>
       <Input
-        label="User Pk"
+        // TT Enter the Solana wallet to recieve the minted Staking Options tokens
+        label="Recipient Public Key"
         value={form.userPk}
         type="text"
         onChange={(evt) =>
