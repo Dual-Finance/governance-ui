@@ -670,7 +670,6 @@ export interface DualFinanceStakingOptionForm {
   strike: number
   soName: string | undefined
   optionExpirationUnixSeconds: number
-  subscriptionPeriodEndUnixSeconds: number
   numTokens: number
   lotSize: number
   baseTreasury: AssetAccount | undefined

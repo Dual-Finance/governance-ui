@@ -73,7 +73,7 @@ export default async function getConfigInstruction({
 
     const configInstruction = await so.createConfigInstruction(
       form.optionExpirationUnixSeconds,
-      form.subscriptionPeriodEndUnixSeconds,
+      form.optionExpirationUnixSeconds,
       form.numTokens,
       form.lotSize,
       form.soName,

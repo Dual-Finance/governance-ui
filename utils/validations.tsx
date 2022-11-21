@@ -558,9 +558,6 @@ export const getDualFinanceStakingOptionSchema = () => {
     optionExpirationUnixSeconds: yup
       .number()
       .typeError('Expiration is required'),
-    subscriptionPeriodEndUnixSeconds: yup
-      .number()
-      .typeError('Subscription end is required'),
     numTokens: yup.number().typeError('Num tokens is required'),
     strike: yup.number().typeError('Strike is required'),
     lotSize: yup.number().typeError('lotSize is required'),
