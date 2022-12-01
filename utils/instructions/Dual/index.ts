@@ -194,7 +194,7 @@ export default async function getConfigInstruction({
       )
     )
 
-    return  {
+    return {
       serializedInstruction,
       isValid: true,
       prerequisiteInstructions: prerequisiteInstructions,
@@ -216,3 +216,5 @@ export default async function getConfigInstruction({
   }
   return obj
 }
+
+///////// Withdraw and Exercise
