@@ -128,6 +128,8 @@ import UpdateConfigParams from './components/instructions/Serum/UpdateConfigPara
 import ClaimMangoTokens from './components/instructions/Mango/ClaimTokens'
 import { StyledLabel } from '@components/inputs/styles'
 import SelectInstructionType from '@components/SelectInstructionType'
+import DualWithdraw from './components/instructions/Dual/DualWithdraw'
+import DualExercise from './components/instructions/Dual/DualExercise'
 
 const TITLE_LENGTH_LIMIT = 130
 
@@ -443,6 +445,8 @@ const New = () => {
       [Instructions.ClaimPendingWithdraw]: FriktionClaimPendingWithdraw,
       [Instructions.DepositIntoCastle]: CastleDeposit,
       [Instructions.DualFinanceStakingOption]: StakingOption,
+      [Instructions.DualFinanceWithdraw]: DualWithdraw,
+      [Instructions.DualFinanceExercise]: DualExercise,
       [Instructions.MeanCreateAccount]: MeanCreateAccount,
       [Instructions.MeanFundAccount]: MeanFundAccount,
       [Instructions.MeanWithdrawFromAccount]: MeanWithdrawFromAccount,
