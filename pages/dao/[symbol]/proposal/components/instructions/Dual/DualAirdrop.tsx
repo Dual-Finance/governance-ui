@@ -75,7 +75,7 @@ const DualAirdrop = ({
       />
      </Tooltip>
       <Input
-        label="Amount"
+        label="Total number of tokens"
         value={form.amount}
         type="text"
         onChange={(evt) =>
