@@ -376,11 +376,49 @@ export async function getExerciseInstruction({
       form.soName,
       form.baseTreasury.extensions.token!.account.owner!,
       form.optionAccount!.pubkey!,
-      form.quoteTreasury!.pubkey!,
-      form.baseTreasury.pubkey
+      quoteHelperTokenAccount.publicKey,
+      baseHelperTokenAccount.publicKey,
     )
     additionalSerializedInstructions.push(
       serializeInstructionToBase64(exerciseInstruction)
+    )
+
+    additionalSerializedInstructions.push(
+      serializeInstructionToBase64(
+        Token.createTransferInstruction(
+          TOKEN_PROGRAM_ID,
+          baseHelperTokenAccount.publicKey,
+          form.baseTreasury!.extensions.transferAddress!,
+          // Base and quote treasuries have the same owner
+          form.quoteTreasury!.extensions!.token!.account.owner,
+          [],
+          baseAmountAtoms
+        )
+      )
+    )
+
+    additionalSerializedInstructions.push(
+      serializeInstructionToBase64(
+        closeAccount({
+          source: baseHelperTokenAccount.publicKey,
+          destination: wallet.publicKey,
+          owner: form.baseTreasury.isSol
+            ? form.baseTreasury.governance.pubkey
+            : form.baseTreasury.extensions.token?.account.owner,
+        })
+      )
+    )
+
+    additionalSerializedInstructions.push(
+      serializeInstructionToBase64(
+        closeAccount({
+          source: quoteHelperTokenAccount.publicKey,
+          destination: wallet.publicKey,
+          owner: form.baseTreasury.isSol
+            ? form.baseTreasury.governance.pubkey
+            : form.baseTreasury.extensions.token?.account.owner,
+        })
+      )
     )
 
     return {
