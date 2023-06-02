@@ -24,7 +24,6 @@ const DualAirdropClose = ({
   const [form, setForm] = useState<DualFinanceAirdropCloseForm>({
     airdropState: '',
     recipient: undefined,
-    treasury: undefined,
   })
   const connection = useLegacyConnectionContext()
   const wallet = useWalletOnePointOh()
@@ -56,8 +55,8 @@ const DualAirdropClose = ({
     )
   }, [form])
   useEffect(() => {
-    setGovernedAccount(form.treasury?.governance)
-  }, [form.treasury])
+    setGovernedAccount(form.recipient?.governance)
+  }, [form.recipient])
 
   return (
     <>
@@ -83,18 +82,6 @@ const DualAirdropClose = ({
         }}
         value={form.recipient}
         error={formErrors['recipient']}
-        shouldBeGoverned={shouldBeGoverned}
-        governance={governance}
-        type="token"
-      ></GovernedAccountSelect>
-      <GovernedAccountSelect
-        label="Treasury"
-        governedAccounts={assetAccounts}
-        onChange={(value) => {
-          handleSetForm({ value, propertyName: 'treasury' })
-        }}
-        value={form.treasury}
-        error={formErrors['treasury']}
         shouldBeGoverned={shouldBeGoverned}
         governance={governance}
         type="token"

@@ -554,7 +554,6 @@ export interface DualFinanceAirdropForm {
 export interface DualFinanceAirdropCloseForm {
   airdropState: string
   recipient: AssetAccount | undefined
-  treasury: AssetAccount | undefined
 }
 
 export interface DualFinanceStakingOptionForm {

@@ -166,14 +166,13 @@ export async function getAirdropCloseInstruction({
   const additionalSerializedInstructions: string[] = []
   if (
     isValid &&
-    form.treasury &&
+    form.recipient?.extensions.token?.account.owner &&
     form.recipient &&
     wallet?.publicKey
   ) {
     const airdrop = new Airdrop(connection.endpoint)
-
     const airdropCloseTransaction = await airdrop.createCloseTransaction(
-      form.treasury.pubkey,
+      form.recipient.extensions.token?.account.owner,
       new PublicKey(form.airdropState),
       form.recipient.pubkey,
     )
@@ -186,14 +185,14 @@ export async function getAirdropCloseInstruction({
       serializedInstruction,
       additionalSerializedInstructions,
       isValid: true,
-      governance: form.treasury?.governance,
+      governance: form.recipient?.governance,
     }
   }
 
   return {
     serializedInstruction,
     isValid: false,
-    governance: form.treasury?.governance,
+    governance: form.recipient?.governance,
     additionalSerializedInstructions: [],
   }
 }
