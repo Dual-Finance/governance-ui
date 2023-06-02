@@ -111,6 +111,7 @@ import RemoveKeyFromDID from './components/instructions/Identity/RemoveKeyFromDI
 import AddServiceToDID from './components/instructions/Identity/AddServiceToDID'
 import RemoveServiceFromDID from './components/instructions/Identity/RemoveServiceFromDID'
 import DualAirdrop from './components/instructions/Dual/DualAirdrop'
+import DualAirdropClose from './components/instructions/Dual/DualAirdropClose'
 import DualWithdraw from './components/instructions/Dual/DualWithdraw'
 import DualExercise from './components/instructions/Dual/DualExercise'
 import PsyFinanceMintAmericanOptions from './components/instructions/PsyFinance/MintAmericanOptions'
@@ -415,6 +416,7 @@ const New = () => {
       [Instructions.ClaimPendingWithdraw]: FriktionClaimPendingWithdraw,
       [Instructions.DepositIntoCastle]: CastleDeposit,
       [Instructions.DualFinanceAirdrop]: DualAirdrop,
+      [Instructions.DualFinanceAirdropClose]: DualAirdropClose,
       [Instructions.DualFinanceStakingOption]: StakingOption,
       [Instructions.DualFinanceInitStrike]: InitStrike,
       [Instructions.DualFinanceLiquidityStakingOption]: LiquidityStakingOption,

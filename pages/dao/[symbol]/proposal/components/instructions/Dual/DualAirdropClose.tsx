@@ -1,0 +1,106 @@
+import React, { useContext, useEffect, useState } from 'react'
+import { ProgramAccount, Governance } from '@solana/spl-governance'
+import {
+  UiInstruction,
+  DualFinanceAirdropCloseForm,
+} from '@utils/uiTypes/proposalCreationTypes'
+import { NewProposalContext } from '../../../new'
+import GovernedAccountSelect from '../../GovernedAccountSelect'
+import useGovernanceAssets from '@hooks/useGovernanceAssets'
+import Input from '@components/inputs/Input'
+import Tooltip from '@components/Tooltip'
+import useWalletOnePointOh from '@hooks/useWalletOnePointOh'
+import useLegacyConnectionContext from '@hooks/useLegacyConnectionContext'
+import { getAirdropCloseInstruction } from '@utils/instructions/Dual/airdrop'
+import { getDualFinanceAirdropCloseSchema } from '@utils/validations'
+
+const DualAirdropClose = ({
+  index,
+  governance,
+}: {
+  index: number
+  governance: ProgramAccount<Governance> | null
+}) => {
+  const [form, setForm] = useState<DualFinanceAirdropCloseForm>({
+    account: '',
+    recipient: undefined,
+    treasury: undefined,
+  })
+  const connection = useLegacyConnectionContext()
+  const wallet = useWalletOnePointOh()
+  const shouldBeGoverned = !!(index !== 0 && governance)
+  const { assetAccounts } = useGovernanceAssets()
+  const [governedAccount, setGovernedAccount] = useState<
+    ProgramAccount<Governance> | undefined
+  >(undefined)
+  const [formErrors, setFormErrors] = useState({})
+  const { handleSetInstructions } = useContext(NewProposalContext)
+  const handleSetForm = ({ propertyName, value }) => {
+    setFormErrors({})
+    setForm({ ...form, [propertyName]: value })
+  }
+  const schema = getDualFinanceAirdropCloseSchema()
+  function getInstruction(): Promise<UiInstruction> {
+    return getAirdropCloseInstruction({
+      connection,
+      form,
+      schema,
+      setFormErrors,
+      wallet,
+    })
+  }
+  useEffect(() => {
+    handleSetInstructions(
+      { governedAccount: governedAccount, getInstruction },
+      index
+    )
+  }, [form])
+  useEffect(() => {
+    setGovernedAccount(form.treasury?.governance)
+  }, [form.treasury])
+
+  return (
+    <>
+      <Tooltip content="State for the Airdrop. Account 5 in the config tx.">
+        <Input
+          label="State"
+          value={form.account}
+          type="text"
+          onChange={(evt) =>
+            handleSetForm({
+              value: evt.target.value,
+              propertyName: 'account',
+            })
+          }
+          error={formErrors['account']}
+        />
+      </Tooltip>
+      <GovernedAccountSelect
+        label="Recipient"
+        governedAccounts={assetAccounts}
+        onChange={(value) => {
+          handleSetForm({ value, propertyName: 'recipient' })
+        }}
+        value={form.recipient}
+        error={formErrors['recipient']}
+        shouldBeGoverned={shouldBeGoverned}
+        governance={governance}
+        type="token"
+      ></GovernedAccountSelect>
+      <GovernedAccountSelect
+        label="Treasury"
+        governedAccounts={assetAccounts}
+        onChange={(value) => {
+          handleSetForm({ value, propertyName: 'treasury' })
+        }}
+        value={form.treasury}
+        error={formErrors['treasury']}
+        shouldBeGoverned={shouldBeGoverned}
+        governance={governance}
+        type="token"
+      ></GovernedAccountSelect>
+    </>
+  )
+}
+
+export default DualAirdropClose

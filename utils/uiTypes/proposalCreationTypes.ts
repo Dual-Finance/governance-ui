@@ -411,6 +411,7 @@ export enum Instructions {
   DepositReserveLiquidityAndObligationCollateral,
   DifferValidatorStake,
   DualFinanceAirdrop,
+  DualFinanceAirdropClose,
   DualFinanceExercise,
   DualFinanceLiquidityStakingOption,
   DualFinanceInitStrike,
@@ -547,6 +548,12 @@ export interface DualFinanceAirdropForm {
   eligibilityStart: number
   eligibilityEnd: number
   amountPerVoter: number
+  treasury: AssetAccount | undefined
+}
+
+export interface DualFinanceAirdropCloseForm {
+  account: string
+  recipient: AssetAccount | undefined
   treasury: AssetAccount | undefined
 }
 

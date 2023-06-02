@@ -3,6 +3,7 @@ import { serializeInstructionToBase64 } from '@solana/spl-governance'
 import { ConnectionContext } from '@utils/connection'
 import { validateInstruction } from '@utils/instructionTools'
 import {
+  DualFinanceAirdropCloseForm,
   DualFinanceAirdropForm,
   UiInstruction,
 } from '@utils/uiTypes/proposalCreationTypes'
@@ -10,10 +11,19 @@ import { WalletAdapter } from '@solana/wallet-adapter-base'
 import { Airdrop, AirdropConfigureContext } from '@dual-finance/airdrop'
 import { BN } from '@coral-xyz/anchor'
 import { getMintNaturalAmountFromDecimalAsBN } from '@tools/sdk/units'
+import { PublicKey } from '@solana/web3.js'
 
 interface AirdropArgs {
   connection: ConnectionContext
   form: DualFinanceAirdropForm
+  setFormErrors: any
+  schema: any
+  wallet: WalletAdapter | undefined
+}
+
+interface AirdropCloseArgs {
+  connection: ConnectionContext
+  form: DualFinanceAirdropCloseForm
   setFormErrors: any
   schema: any
   wallet: WalletAdapter | undefined
@@ -126,6 +136,51 @@ export async function getGovernanceAirdropInstruction({
         serializeInstructionToBase64(instruction)
       )
     }
+
+    return {
+      serializedInstruction,
+      additionalSerializedInstructions,
+      isValid: true,
+      governance: form.treasury?.governance,
+    }
+  }
+
+  return {
+    serializedInstruction,
+    isValid: false,
+    governance: form.treasury?.governance,
+    additionalSerializedInstructions: [],
+  }
+}
+
+export async function getAirdropCloseInstruction({
+  connection,
+  wallet,
+  form,
+  schema,
+  setFormErrors,
+}: AirdropCloseArgs): Promise<UiInstruction> {
+  const isValid = await validateInstruction({ schema, form, setFormErrors })
+
+  const serializedInstruction = ''
+  const additionalSerializedInstructions: string[] = []
+  if (
+    isValid &&
+    form.treasury &&
+    form.recipient &&
+    wallet?.publicKey
+  ) {
+    const airdrop = new Airdrop(connection.endpoint)
+
+    const airdropCloseTransaction = await airdrop.createCloseTransaction(
+      form.treasury.pubkey,
+      new PublicKey(form.account),
+      form.recipient.pubkey,
+    )
+
+    additionalSerializedInstructions.push(
+      serializeInstructionToBase64(airdropCloseTransaction.instructions[0])
+    )
 
     return {
       serializedInstruction,

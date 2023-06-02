@@ -684,6 +684,18 @@ export const getDualFinanceWithdrawSchema = () => {
   })
 }
 
+export const getDualFinanceAirdropCloseSchema = () => {
+  return yup.object().shape({
+    account: yup
+      .string()
+      .test('is-valid-address1', 'Please enter a valid PublicKey', (value) =>
+        value ? validatePubkey(value) : true
+      ),
+    recipient: yup.object().typeError('Recipient is required'),
+    treasury: yup.object().typeError('Treasury is required'),
+  })
+}
+
 export const getGoblinGoldDepositSchema = ({ form }) => {
   const governedTokenAccount = form.governedTokenAccount as AssetAccount
   return yup.object().shape({
