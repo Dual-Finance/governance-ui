@@ -22,7 +22,7 @@ const DualAirdropClose = ({
   governance: ProgramAccount<Governance> | null
 }) => {
   const [form, setForm] = useState<DualFinanceAirdropCloseForm>({
-    account: '',
+    airdropState: '',
     recipient: undefined,
     treasury: undefined,
   })
@@ -61,18 +61,18 @@ const DualAirdropClose = ({
 
   return (
     <>
-      <Tooltip content="State for the Airdrop. Account 5 in the config tx.">
+      <Tooltip content="Public Key from #6-Account5 found in config tx when the Airdrop was created. Example: 4eBYJahWrE5j4aURDF9EUAHG6dyzJScTkE715Z6dKwU3gJm2UzsbDJaWKovVZKS9FJKzEJ8CLbqAnXTXrj1GPbkh -> Haz1LEuw1CUiRex1ThXAvG2jucpgTwjbtUTby3QMggQ1">
         <Input
-          label="State"
-          value={form.account}
+          label="Airdrop State"
+          value={form.airdropState}
           type="text"
           onChange={(evt) =>
             handleSetForm({
               value: evt.target.value,
-              propertyName: 'account',
+              propertyName: 'airdropState',
             })
           }
-          error={formErrors['account']}
+          error={formErrors['airdropState']}
         />
       </Tooltip>
       <GovernedAccountSelect

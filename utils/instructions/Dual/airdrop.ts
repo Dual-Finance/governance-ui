@@ -174,7 +174,7 @@ export async function getAirdropCloseInstruction({
 
     const airdropCloseTransaction = await airdrop.createCloseTransaction(
       form.treasury.pubkey,
-      new PublicKey(form.account),
+      new PublicKey(form.airdropState),
       form.recipient.pubkey,
     )
 
