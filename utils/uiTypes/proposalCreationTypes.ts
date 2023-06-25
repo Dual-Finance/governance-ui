@@ -417,6 +417,9 @@ export enum Instructions {
   DualFinanceInitStrike,
   DualFinanceStakingOption,
   DualFinanceWithdraw,
+  DualFinanceDelegate,
+  DualFinanceDelegateWithdraw,
+  DualFinanceVoteDeposit,
   EverlendDeposit,
   EverlendWithdraw,
   ForesightAddMarketListToCategory,
@@ -468,6 +471,8 @@ export enum Instructions {
   StakeValidator,
   SwitchboardAdmitOracle,
   SwitchboardRevokeOracle,
+  SwitchboardFundOracle,
+  WithdrawFromOracle,
   Transfer,
   TransferDomainName,
   UpdateTokenMetadata,
@@ -596,4 +601,21 @@ export interface DualFinanceWithdrawForm {
   soName: string | undefined
   baseTreasury: AssetAccount | undefined
   mintPk: string | undefined
+}
+
+export interface DualFinanceDelegateForm {
+  delegateAccount: string | undefined
+  realm: string | undefined
+  delegateToken: AssetAccount | undefined
+}
+
+export interface DualFinanceDelegateWithdrawForm {
+  realm: string | undefined
+  delegateToken: AssetAccount | undefined
+}
+
+export interface DualFinanceVoteDepositForm {
+  numTokens: number
+  realm: string | undefined
+  delegateToken: AssetAccount | undefined
 }

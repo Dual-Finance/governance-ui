@@ -405,6 +405,21 @@ export default function useGovernanceAssets() {
       isVisible: canUseTransferInstruction,
       packageId: PackageEnum.Dual,
     },
+    [Instructions.DualFinanceDelegate]: {
+      name: 'Delegate',
+      isVisible: canUseTransferInstruction,
+      packageId: PackageEnum.Dual,
+    },
+    [Instructions.DualFinanceDelegateWithdraw]: {
+      name: 'Withdraw Delegate',
+      isVisible: canUseTransferInstruction,
+      packageId: PackageEnum.Dual,
+    },
+    [Instructions.DualFinanceVoteDeposit]: {
+      name: 'Vote Deposit',
+      isVisible: canUseTransferInstruction,
+      packageId: PackageEnum.Dual,
+    },
 
     /*
       ███████ ██    ██ ███████ ██████  ██      ███████ ███    ██ ██████
@@ -799,6 +814,14 @@ export default function useGovernanceAssets() {
     },
     [Instructions.SwitchboardRevokeOracle]: {
       name: 'Remove Oracle from Queue',
+      packageId: PackageEnum.Switchboard,
+    },
+    [Instructions.SwitchboardFundOracle]: {
+      name: 'Fund Oracle',
+      packageId: PackageEnum.Switchboard,
+    },
+    [Instructions.WithdrawFromOracle]: {
+      name: 'Withdraw from Oracle',
       packageId: PackageEnum.Switchboard,
     },
 
