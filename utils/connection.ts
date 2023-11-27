@@ -7,7 +7,7 @@ const ENDPOINTS: EndpointInfo[] = [
     name: 'mainnet',
     url:
       process.env.MAINNET_RPC ||
-      'http://realms-realms-c335.mainnet.rpcpool.com/258d3727-bb96-409d-abea-0b1b4c48af29/',
+      'https://mango.rpcpool.com/946ef7337da3f5b8d3e4a34e7f88',
   },
   {
     name: 'devnet',

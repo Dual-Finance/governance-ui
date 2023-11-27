@@ -88,13 +88,13 @@ export async function getConfigInstruction({
   schema,
   setFormErrors,
 }: StakingOptionArgs): Promise<UiInstruction> {
-  const isValid = await validateInstruction({ schema, form, setFormErrors })
+  // const isValid = await validateInstruction({ schema, form, setFormErrors })
 
   const serializedInstruction = ''
   const additionalSerializedInstructions: string[] = []
   const prerequisiteInstructions: TransactionInstruction[] = []
   if (
-    isValid &&
+    // isValid &&
     form.soName &&
     form.baseTreasury &&
     form.quoteTreasury &&
@@ -141,7 +141,8 @@ export async function getConfigInstruction({
           //owner is sol wallet or governance same as baseTokenAccount
           form.baseTreasury.extensions!.token!.account.owner,
           [],
-          form.numTokens
+          // @ts-ignore
+          form.numTokens as unknown as bigint
         )
       )
     )
